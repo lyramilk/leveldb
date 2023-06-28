@@ -974,6 +974,10 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
         //     few iterations of this loop (by rule (A) above).
         // Therefore this deletion marker is obsolete and can be dropped.
         drop = true;
+      } else if (ikey.ttl < time(NULL)) {
+        Log(options_.info_log, "drop key  %s by ttl\n",ikey.user_key.ToString().c_str());
+        drop = true;
+
       }
 
       last_sequence_for_key = ikey.sequence;

@@ -76,20 +76,19 @@ int main(int argc, char** argv) {
 
 	
 
-	/*
+    /*
     time_t now = time(NULL);
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 86400; ++i) {
         char buff[64];
         int r = snprintf(buff, sizeof(buff), "key%d", i);
         buff[r] = 0;
         db->Put(leveldb::WriteOptions(), buff, "value", now + i);
     }*/
 
-    
-
-    //db->CompactRange(NULL, NULL);
+    db->CompactRange(NULL, NULL);
 	
-    for (int i = 0; i < 10000; ++i) {
+	/*
+    for (int i = 0; i < 86400; ++i) {
         char buff[64];
         int r = snprintf(buff, sizeof(buff), "key%d", i);
         buff[r] = 0;
@@ -98,7 +97,18 @@ int main(int argc, char** argv) {
             std::cout << "最小值" << buff << "=" << value << std::endl;
             break;
         }
+    }*/
+
+
+    leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
+    long long i = 0;
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+        ++i;
     }
+    delete it;
+
+    std::cout << "数量" << i << std::endl;
+
 
 	/*
     status = db->Get(leveldb::ReadOptions(), "key1", &value);

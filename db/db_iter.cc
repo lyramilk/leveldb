@@ -181,6 +181,11 @@ void DBIter::FindNextUserEntry(bool skipping, std::string* skip) {
   do {
     ParsedInternalKey ikey;
     if (ParseKey(&ikey) && ikey.sequence <= sequence_) {
+      if (ikey.ttl < time(NULL)) {
+        SaveKey(ikey.user_key, skip);
+        skipping = true;
+      }
+
       switch (ikey.type) {
         case kTypeDeletion:
           // Arrange to skip all upcoming entries for this key since
