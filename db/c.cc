@@ -185,7 +185,7 @@ void leveldb_put(leveldb_t* db, const leveldb_writeoptions_t* options,
                  const char* key, size_t keylen, const char* val, size_t vallen,
                  char** errptr) {
   SaveError(errptr,
-            db->rep->Put(options->rep, Slice(key, keylen), Slice(val, vallen)));
+            db->rep->Put(options->rep, Slice(key, keylen), Slice(val, vallen),-1));
 }
 
 void leveldb_delete(leveldb_t* db, const leveldb_writeoptions_t* options,
@@ -331,7 +331,7 @@ void leveldb_writebatch_clear(leveldb_writebatch_t* b) { b->rep.Clear(); }
 
 void leveldb_writebatch_put(leveldb_writebatch_t* b, const char* key,
                             size_t klen, const char* val, size_t vlen) {
-  b->rep.Put(Slice(key, klen), Slice(val, vlen));
+  b->rep.Put(Slice(key, klen), Slice(val, vlen),-1);
 }
 
 void leveldb_writebatch_delete(leveldb_writebatch_t* b, const char* key,
@@ -341,16 +341,16 @@ void leveldb_writebatch_delete(leveldb_writebatch_t* b, const char* key,
 
 void leveldb_writebatch_iterate(const leveldb_writebatch_t* b, void* state,
                                 void (*put)(void*, const char* k, size_t klen,
-                                            const char* v, size_t vlen),
+                                            const char* v, size_t vlen,time_t ttl),
                                 void (*deleted)(void*, const char* k,
                                                 size_t klen)) {
   class H : public WriteBatch::Handler {
    public:
     void* state_;
-    void (*put_)(void*, const char* k, size_t klen, const char* v, size_t vlen);
+    void (*put_)(void*, const char* k, size_t klen, const char* v, size_t vlen,time_t ttl);
     void (*deleted_)(void*, const char* k, size_t klen);
-    void Put(const Slice& key, const Slice& value) override {
-      (*put_)(state_, key.data(), key.size(), value.data(), value.size());
+    void Put(const Slice& key, const Slice& value,time_t ttl) override {
+      (*put_)(state_, key.data(), key.size(), value.data(), value.size(),ttl);
     }
     void Delete(const Slice& key) override {
       (*deleted_)(state_, key.data(), key.size());

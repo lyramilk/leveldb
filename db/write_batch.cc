@@ -47,6 +47,7 @@ Status WriteBatch::Iterate(Handler* handler) const {
 
   input.remove_prefix(kHeader);
   Slice key, value;
+  time_t ttl;
   int found = 0;
   while (!input.empty()) {
     found++;
@@ -55,8 +56,8 @@ Status WriteBatch::Iterate(Handler* handler) const {
     switch (tag) {
       case kTypeValue:
         if (GetLengthPrefixedSlice(&input, &key) &&
-            GetLengthPrefixedSlice(&input, &value)) {
-          handler->Put(key, value);
+            GetLengthPrefixedSlice(&input, &value) && GetVarint64(&input,(uint64_t*)&ttl)) {
+          handler->Put(key, value,ttl);
         } else {
           return Status::Corruption("bad WriteBatch Put");
         }
@@ -95,11 +96,12 @@ void WriteBatchInternal::SetSequence(WriteBatch* b, SequenceNumber seq) {
   EncodeFixed64(&b->rep_[0], seq);
 }
 
-void WriteBatch::Put(const Slice& key, const Slice& value) {
+void WriteBatch::Put(const Slice& key, const Slice& value,time_t ttl) {
   WriteBatchInternal::SetCount(this, WriteBatchInternal::Count(this) + 1);
   rep_.push_back(static_cast<char>(kTypeValue));
   PutLengthPrefixedSlice(&rep_, key);
   PutLengthPrefixedSlice(&rep_, value);
+  PutVarint64(&rep_, ttl);
 }
 
 void WriteBatch::Delete(const Slice& key) {
@@ -118,12 +120,12 @@ class MemTableInserter : public WriteBatch::Handler {
   SequenceNumber sequence_;
   MemTable* mem_;
 
-  void Put(const Slice& key, const Slice& value) override {
-    mem_->Add(sequence_, kTypeValue, key, value);
+  void Put(const Slice& key, const Slice& value,time_t ttl) override {
+    mem_->Add(sequence_, kTypeValue, key, value,ttl);
     sequence_++;
   }
   void Delete(const Slice& key) override {
-    mem_->Add(sequence_, kTypeDeletion, key, Slice());
+    mem_->Add(sequence_, kTypeDeletion, key, Slice(),0);
     sequence_++;
   }
 };

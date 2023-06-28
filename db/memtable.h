@@ -54,7 +54,7 @@ class MemTable {
   // specified sequence number and with the specified type.
   // Typically value will be empty if type==kTypeDeletion.
   void Add(SequenceNumber seq, ValueType type, const Slice& key,
-           const Slice& value);
+           const Slice& value,time_t ttl);
 
   // If memtable contains a value for key, store it in *value and return true.
   // If memtable contains a deletion for key, store a NotFound() error

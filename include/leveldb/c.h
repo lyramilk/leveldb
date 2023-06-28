@@ -157,7 +157,7 @@ LEVELDB_EXPORT void leveldb_writebatch_delete(leveldb_writebatch_t*,
                                               const char* key, size_t klen);
 LEVELDB_EXPORT void leveldb_writebatch_iterate(
     const leveldb_writebatch_t*, void* state,
-    void (*put)(void*, const char* k, size_t klen, const char* v, size_t vlen),
+    void (*put)(void*, const char* k, size_t klen, const char* v, size_t vlen,time_t ttl),
     void (*deleted)(void*, const char* k, size_t klen));
 LEVELDB_EXPORT void leveldb_writebatch_append(
     leveldb_writebatch_t* destination, const leveldb_writebatch_t* source);

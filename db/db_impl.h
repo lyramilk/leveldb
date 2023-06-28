@@ -37,7 +37,7 @@ class DBImpl : public DB {
 
   // Implementations of the DB interface
   Status Put(const WriteOptions&, const Slice& key,
-             const Slice& value) override;
+             const Slice& value,time_t ttl) override;
   Status Delete(const WriteOptions&, const Slice& key) override;
   Status Write(const WriteOptions& options, WriteBatch* updates) override;
   Status Get(const ReadOptions& options, const Slice& key,

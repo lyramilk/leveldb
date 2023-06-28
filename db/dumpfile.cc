@@ -74,12 +74,22 @@ Status PrintLogContents(Env* env, const std::string& fname,
 // Called on every item found in a WriteBatch.
 class WriteBatchItemPrinter : public WriteBatch::Handler {
  public:
-  void Put(const Slice& key, const Slice& value) override {
+  void Put(const Slice& key, const Slice& value,time_t ttl) override {
     std::string r = "  put '";
     AppendEscapedStringTo(&r, key);
     r += "' '";
     AppendEscapedStringTo(&r, value);
-    r += "'\n";
+    r += "'";
+    if (ttl > 0) {
+        char buf[64];
+        int n = snprintf(buf, sizeof(buf), "%llu", ttl);
+        if (n > 0) {
+          r += " ttl ";
+          r.append(buf, n);
+        }
+    }
+
+    r += "\n";
     dst_->Append(r);
   }
   void Delete(const Slice& key) override {

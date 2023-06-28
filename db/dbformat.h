@@ -70,6 +70,7 @@ struct ParsedInternalKey {
   Slice user_key;
   SequenceNumber sequence;
   ValueType type;
+  time_t ttl;
 
   ParsedInternalKey() {}  // Intentionally left uninitialized (for speed)
   ParsedInternalKey(const Slice& u, const SequenceNumber& seq, ValueType t)
@@ -172,11 +173,13 @@ inline bool ParseInternalKey(const Slice& internal_key,
                              ParsedInternalKey* result) {
   const size_t n = internal_key.size();
   if (n < 8) return false;
-  uint64_t num = DecodeFixed64(internal_key.data() + n - 8);
+  uint64_t num = DecodeFixed64(internal_key.data() + n - 16);
   uint8_t c = num & 0xff;
+  uint64_t ttl = DecodeFixed64(internal_key.data() + n - 8);
   result->sequence = num >> 8;
   result->type = static_cast<ValueType>(c);
-  result->user_key = Slice(internal_key.data(), n - 8);
+  result->ttl = ttl;
+  result->user_key = Slice(internal_key.data(), n - 16);
   return (c <= static_cast<uint8_t>(kTypeValue));
 }
 

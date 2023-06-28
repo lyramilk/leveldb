@@ -3,10 +3,12 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include <cstdio>
+#include <iostream>
 
 #include "leveldb/dumpfile.h"
 #include "leveldb/env.h"
 #include "leveldb/status.h"
+#include "leveldb/db.h"
 
 namespace leveldb {
 namespace {
@@ -46,6 +48,7 @@ static void Usage() {
 }
 
 int main(int argc, char** argv) {
+    /*
   leveldb::Env* env = leveldb::Env::Default();
   bool ok = true;
   if (argc < 2) {
@@ -59,6 +62,51 @@ int main(int argc, char** argv) {
       Usage();
       ok = false;
     }
-  }
-  return (ok ? 0 : 1);
+  }*/
+
+    leveldb::DB* db = nullptr;
+    leveldb::Options options;
+    options.create_if_missing = true;
+    leveldb::Status status = leveldb::DB::Open(options, "D:\\testdb", &db);
+    if (!status.ok()) {
+        std::cout << status.ToString() << std::endl;
+        return 1;
+    }
+    std::string value;
+
+	
+
+	/*
+    time_t now = time(NULL);
+    for (int i = 0; i < 10000; ++i) {
+        char buff[64];
+        int r = snprintf(buff, sizeof(buff), "key%d", i);
+        buff[r] = 0;
+        db->Put(leveldb::WriteOptions(), buff, "value", now + i);
+    }*/
+
+    
+
+    //db->CompactRange(NULL, NULL);
+	
+    for (int i = 0; i < 10000; ++i) {
+        char buff[64];
+        int r = snprintf(buff, sizeof(buff), "key%d", i);
+        buff[r] = 0;
+        status = db->Get(leveldb::ReadOptions(), buff, &value);
+        if (status.ok()) {
+            std::cout << "×îÐ¡Öµ" << buff << "=" << value << std::endl;
+            break;
+        }
+    }
+
+	/*
+    status = db->Get(leveldb::ReadOptions(), "key1", &value);
+    if (status.ok()) {
+        std::cout << value << std::endl;
+    } else {
+        std::cout << status.ToString() << std::endl;
+    }*/
+    delete db;
+    return 0;
 }

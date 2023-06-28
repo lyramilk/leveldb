@@ -1666,7 +1666,7 @@ TEST_F(DBTest, ManualCompaction) {
   // Compact all
   MakeTables(1, "a", "z");
   ASSERT_EQ("0,1,2", FilesPerLevel());
-  db_->CompactRange(nullptr, nullptr);
+  db_-> (nullptr, nullptr);
   ASSERT_EQ("0,0,1", FilesPerLevel());
 }
 

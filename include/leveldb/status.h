@@ -40,6 +40,10 @@ class LEVELDB_EXPORT Status {
   static Status NotFound(const Slice& msg, const Slice& msg2 = Slice()) {
     return Status(kNotFound, msg, msg2);
   }
+  static Status OutOfExpire(const Slice& msg, const Slice& msg2 = Slice()) {
+    return Status(kOutOfExpire, msg, msg2);
+  }
+  
   static Status Corruption(const Slice& msg, const Slice& msg2 = Slice()) {
     return Status(kCorruption, msg, msg2);
   }
@@ -71,6 +75,9 @@ class LEVELDB_EXPORT Status {
   // Returns true iff the status indicates an InvalidArgument.
   bool IsInvalidArgument() const { return code() == kInvalidArgument; }
 
+    // Returns true iff the status indicates an InvalidArgument.
+  bool IsOutOfExpire() const { return code() == kOutOfExpire; }
+
   // Return a string representation of this status suitable for printing.
   // Returns the string "OK" for success.
   std::string ToString() const;
@@ -82,7 +89,8 @@ class LEVELDB_EXPORT Status {
     kCorruption = 2,
     kNotSupported = 3,
     kInvalidArgument = 4,
-    kIOError = 5
+    kIOError = 5,
+    kOutOfExpire = 6
   };
 
   Code code() const {
